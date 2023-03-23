@@ -18,6 +18,12 @@ def read_structure_database():
         database[stoichio] = read( database_path + f, index=':')
     return database
 
+def writeStructureDB(db):
+    for st in db:
+        if os.path.exists(stoichioToFilename(st)):
+            os.remove(stoichioToFilename(st))
+        write(stoichioToFilename(st), db[st])
+
 def find_files():
     return os.listdir(database_path)
 
@@ -30,8 +36,7 @@ def filenameToStoichio(fname):
 def getStoichiometry(struct: Atoms):
     return ase.formula.Formula.from_list(struct.get_chemical_symbols()).format('hill')
 
-def addAtoms(atomList: list):
-    db = read_structure_database()
+def addAtoms(db: dict, atomList: list):
     for struct in atomList:
         st = getStoichiometry(struct)
         if st not in db:
@@ -67,7 +72,5 @@ def addAtoms(atomList: list):
             db[st].append(struct)
         else:
             db[st].insert(i_start, struct)
-    if os.path.exists(stoichioToFilename(st)):
-        os.remove(stoichioToFilename(st))
-    write(stoichioToFilename(st), db[st])
+
  

@@ -48,7 +48,7 @@ def fingerprint_distance(self, other):
 
 
 
-def get_OMFP(atoms, s=1, p=0, width_cutoff=4, maxnatsphere=100, exclude=[]):
+def get_OMFP(atoms, s=1, p=0, width_cutoff=4, maxnatsphere=50, exclude=[]):
         """
         Calculation of the Overlapmatrix fingerprint. For peridoic systems a local environment fingerprint is calculated
         and a hungarian algorithm has to be used for the fingerprint distance. For non-periodic systems a global fingerprint

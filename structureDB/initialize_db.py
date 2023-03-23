@@ -7,5 +7,4 @@ def initialize():
 
 
 def isInitialized():
-    print("Check initialization of db")
     return os.path.isdir(structureDB.database.database_path)
