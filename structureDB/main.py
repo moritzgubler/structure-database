@@ -1,6 +1,8 @@
 import argparse
 from ase.io import read, write
 import structureDB.initialize_db
+import structureDB.convexHull
+import structureDB.add
 import sys
 
 def main():
@@ -29,7 +31,7 @@ def main():
         sys.exit(1)
 
     if args.command == 'add':
-        print(args.files)
+        structureDB.add.add_files(args.files)
     if args.command == 'convexHull':
         print('Calculating convex hull')
 
