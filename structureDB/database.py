@@ -7,19 +7,19 @@ import bisect
 import structureDB.omfp.fpd
 
 database_path = "structureDB/"
-fp_cutoff = 0.05
-e_cutoff = 0.001
+fp_cutoff = 1e-3
+e_cutoff = 1e-3
 
 def read_structure_database():
-    files = find_files(database_path)
+    files = find_files()
     database = {}
     for f in files:
         stoichio = filenameToStoichio(f)
-        database[stoichio] = read(f, index=':')
+        database[stoichio] = read( database_path + f, index=':')
     return database
 
 def find_files():
-    return os.listdir(structureDB.database.database_path)
+    return os.listdir(database_path)
 
 def stoichioToFilename(stoichio: str):
     return database_path + stoichio + '.extxyz'
@@ -31,13 +31,13 @@ def getStoichiometry(struct: Atoms):
     return ase.formula.Formula.from_list(struct.get_chemical_symbols()).format('hill')
 
 def addAtoms(atomList: list):
-    db = read_structure_database(database_path)
+    db = read_structure_database()
     for struct in atomList:
         st = getStoichiometry(struct)
         if st not in db:
             db[st] = [struct]
             continue
-        i_start = bisect.bisect_left(db[st], struct, key= lambda x: x.info['energy'])
+        i_start = bisect.bisect_left(db[st], struct.info['energy'], key= lambda x: x.info['energy'])
 
         # start backward check
         already_found = False
@@ -63,10 +63,11 @@ def addAtoms(atomList: list):
             i_compare += 1
         if already_found:
             continue
-    if i_start >= len(db[st]):
-        db[st].append(struct)
-    else:
-        db[st].insert(i_start, struct)
-    os.remove(stoichioToFilename(st))
+        if i_start >= len(db[st]):
+            db[st].append(struct)
+        else:
+            db[st].insert(i_start, struct)
+    if os.path.exists(stoichioToFilename(st)):
+        os.remove(stoichioToFilename(st))
     write(stoichioToFilename(st), db[st])
-        
+ 
