@@ -3,6 +3,7 @@ from ase.io import read, write
 import structureDB.initialize_db
 import structureDB.convexHull
 import structureDB.add
+import structureDB.get
 import sys
 import numpy as np
 
@@ -28,7 +29,7 @@ def main():
     get_parser.add_argument('-o', '--outdir', type=str, help="Output directory will be cleaned up before use. Default is output/",
         dest='outdir', default='output', required=False) 
     get_parser.add_argument('-t', '--extension', type=str, default='extxyz', dest='ext', 
-        required=False, choices=['ascii, extxyz', 'in'], help="File format of output files.")
+        required=False, choices=structureDB.get.allowed_extensions, help="File format of output files.")
 
     args = parser.parse_args()
 
@@ -42,5 +43,7 @@ def main():
         structureDB.add.add_files(args.files)
     if args.command == 'convexHull':
         print('Calculating convex hull')
+    if args.command == 'get':
+        structureDB.get.get(args.ediff, args.nmax, args.outdir, args.ext)
 
 
