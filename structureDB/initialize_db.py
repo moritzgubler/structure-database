@@ -6,7 +6,7 @@ import sys
 
 def initialize(parameters: structureDB.parameters.structureDBParameters):
     print("Initializing databse in current working directory")
-    os.mkdir(structureDB.database.database_path)
+    os.mkdir(parameters.db_name)
     f = open(structureDB.parameters.dbname, "w")
     json.dump(parameters.to_dict(), f)
 
