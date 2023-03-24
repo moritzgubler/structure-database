@@ -1,10 +1,10 @@
 import argparse
-from ase.io import read, write
 import structureDB.initialize_db
 import structureDB.convexHull
 import structureDB.add
 import structureDB.get
 import structureDB.parameters
+import structureDB.convexHull
 import sys
 import numpy as np
 
@@ -22,6 +22,11 @@ def main():
     get_parser = subparsers.add_parser("get", help="Get files from database")
 
     add_parser.add_argument('files', type=argparse.FileType('r'), nargs=argparse.REMAINDER)
+
+    conv_parser.add_argument("-p", "--onlypositions", action='store_true',
+                             help="Plot positions without formation enthalpies", required=False)
+    conv_parser.add_argument("-o", '--outfile', dest='outfilename', action='store', type=str,
+        help='Name of the Convex hull plot file', default="enthalpies.plt", required= False)
 
 
     init_parser.add_argument('--name', dest='name', action='store', type=str,
@@ -77,7 +82,7 @@ def main():
     if args.command == 'add':
         structureDB.add.add_files(args.files)
     if args.command == 'convexHull':
-        print('Calculating convex hull')
+        structureDB.convexHull.calcConvexHull(args.outfilename, args.onlypositions)
     if args.command == 'get':
         structureDB.get.get(args.ediff, args.nmax, args.outdir, args.ext)
 
