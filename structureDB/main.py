@@ -4,6 +4,7 @@ import structureDB.initialize_db
 import structureDB.convexHull
 import structureDB.add
 import structureDB.get
+import structureDB.parameters
 import sys
 import numpy as np
 
@@ -22,6 +23,32 @@ def main():
 
     add_parser.add_argument('files', type=argparse.FileType('r'), nargs=argparse.REMAINDER)
 
+
+    init_parser.add_argument('--name', dest='name', action='store', type=str,
+        help='Name of the structure database directory', default="structureDB", required= False)
+    init_parser.add_argument('-ns', '--n_S_orbitals', dest='ns', action='store', type=int,
+        help='number of s orbitals for constructing the OMFP', default=1, required= False)
+    init_parser.add_argument('-np', '--n_P_orbitals', dest='np', action='store', type=int,
+        help='number of p orbitals for constructing the OMFP', default=0, required= False)
+    init_parser.add_argument('-w', '--width_cutoff', dest='width_cutoff', action='store', type=float,
+        help='cutoff for the OMFP', default=4.0, required= False)
+    init_parser.add_argument('--maxnatsphere', dest='maxnatsphere', action='store', type=int,
+        help='Truncation lentgh of the OMFP length', default=50, required= False)
+    init_parser.add_argument('--fpd', dest='fpd_max', action='store', type=float,
+        help='Maximal fingerprint distance between two structures that will be considered equal.', default=1e-3, required= False)
+    init_parser.add_argument('--e_thresh', dest='e_thresh', action='store', type=float,
+        help='Maximal energy difference per atom between two structures that will be considered equal.', default=1e-2, required= False)
+    init_parser.add_argument(
+        "--exclude",
+        dest='exclude',
+        action='store', 
+        nargs="*",
+        type=str,
+        default=[],
+        help='List of elements to exclude in the OMFP.',
+        required= False
+        )
+
     get_parser.add_argument( '-e', '--ediff', type=float, help="Filter by energy difference per atom", dest='ediff',
         required=False, default=np.inf)
     get_parser.add_argument('-n', '--nmax', type=int, help="Maximal elements of each stoichiometry",
@@ -34,10 +61,18 @@ def main():
     args = parser.parse_args()
 
     if args.command == 'init':
-        structureDB.initialize_db.initialize()
+        if structureDB.initialize_db.isInitialized():
+            print('Database already initialized. Quitting.')
+            sys.exit(1)
+        parameters = structureDB.parameters.structureDBParameters(args.ns, args.np, args.width_cutoff,
+            args.maxnatsphere, args.fpd_max, args.e_thresh, args.exclude, args.name + '/')
+        structureDB.initialize_db.initialize(parameters)
+        sys.exit(0)
     elif not structureDB.initialize_db.isInitialized():
         print("Database must be initialized first")
         sys.exit(1)
+
+    # database is initialized and command is not init
 
     if args.command == 'add':
         structureDB.add.add_files(args.files)
