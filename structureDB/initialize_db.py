@@ -15,8 +15,9 @@ def isInitialized():
     file = os.path.isfile(structureDB.parameters.dbname)
     if not file:
         return False
-    
-    parameters = structureDB.parameters.structureDBParameters(**json.load(structureDB.parameters.dbname))
+    f = open(structureDB.parameters.dbname)
+    parameters = structureDB.parameters.structureDBParameters(**json.load(f))
+    f.close()
     dir = os.path.isdir(parameters.db_name)
 
     if dir and file:
