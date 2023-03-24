@@ -27,7 +27,12 @@ def main():
                              help="Plot positions without formation enthalpies", required=False)
     conv_parser.add_argument("-o", '--outfile', dest='outfilename', action='store', type=str,
         help='Name of the Convex hull plot file', default="enthalpies.plt", required= False)
-
+    conv_parser.add_argument('-e1', dest='e1', action='store', type=str,
+        help='Chemical symbol of first element', required= True)
+    conv_parser.add_argument('-e2', dest='e2', action='store', type=str,
+        help='Chemical symbol of 2nd element', required= True)
+    conv_parser.add_argument('-e3', dest='e2', action='store', type=str,
+        help='Chemical symbol of 3rd element', required= True)
 
     init_parser.add_argument('--name', dest='name', action='store', type=str,
         help='Name of the structure database directory', default="structureDB", required= False)
@@ -82,7 +87,7 @@ def main():
     if args.command == 'add':
         structureDB.add.add_files(args.files)
     if args.command == 'convexHull':
-        structureDB.convexHull.calcConvexHull(args.outfilename, args.onlypositions)
+        structureDB.convexHull.calcConvexHull(args.outfilename, args.onlypositions, args.e1, args.e2, args.e3)
     if args.command == 'get':
         structureDB.get.get(args.ediff, args.nmax, args.outdir, args.ext)
 
