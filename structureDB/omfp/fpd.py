@@ -4,9 +4,9 @@ from structureDB.omfp.OverlapMatrixFingerprint import OverlapMatrixFingerprint a
 import numba
 from numba import njit
 
-def calcFingerprintDistance(struct1, struct2):
-    fp1 = get_OMFP(struct1)
-    fp2 = get_OMFP(struct2)
+def calcFingerprintDistance(struct1, struct2, s=1, p=0, width_cutoff=4, maxnatsphere=50, exclude=[]):
+    fp1 = get_OMFP(struct1, s, p, width_cutoff, maxnatsphere, exclude)
+    fp2 = get_OMFP(struct2, s, p, width_cutoff, maxnatsphere, exclude)
     n_dim1 = len(fp1.shape)
     n_dim2 = len(fp2.shape)
 
