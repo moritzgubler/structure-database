@@ -1,10 +1,27 @@
 import os
 import structureDB.database
+import structureDB.parameters
+import json
+import sys
 
-def initialize():
+def initialize(parameters: structureDB.parameters.structureDBParameters):
     print("Initializing databse in current working directory")
     os.mkdir(structureDB.database.database_path)
+    f = open(structureDB.parameters.dbname, "w")
+    json.dump(parameters.to_dict(), f)
 
 
 def isInitialized():
-    return os.path.isdir(structureDB.database.database_path)
+    file = os.path.isfile(structureDB.parameters.dbname)
+    if not file:
+        return False
+    
+    parameters = structureDB.parameters.structureDBParameters(**json.load(structureDB.parameters.dbname))
+    dir = os.path.isdir(parameters.db_name)
+
+    if dir and file:
+        return True
+    if not dir and not file:
+        return False
+    print("Either database directory or database parameter file is missing, aborting...")
+    sys.exit(1)
