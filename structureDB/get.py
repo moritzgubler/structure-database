@@ -29,8 +29,7 @@ def get(emax, nmax, outdir, extension):
             at_list.append(db[st][i])
             i+=1
         if concatanable[extension]:
-            print(outdir + '/' + st + '.' + extension)
-            # write(outdir + '/' + st + '.' + extension, at_list)
+            write(outdir + '/' + st + '.' + extension, at_list)
         else:
             for i, struct in enumerate(at_list):
-                print("%s/%s_%s.%s"%(outdir, st, format(i, '05'), extension))
+                write("%s/%s_%s.%s"%(outdir, st, format(i, '05'), extension), struct)
