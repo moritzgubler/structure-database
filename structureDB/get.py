@@ -1,7 +1,9 @@
 import structureDB.database
+import structureDB.parameters
 from ase.io import write
 import os
 import shutil
+import json
 
 allowed_extensions = ['ascii', 'extxyz', 'in']
 
@@ -19,7 +21,10 @@ def get(emax, nmax, outdir, extension):
         shutil.rmtree(outdir)
     
     os.mkdir(outdir)
-    db = structureDB.database.read_structure_database()
+    f = open(structureDB.parameters.dbname)
+    parameters = structureDB.parameters.structureDBParameters(**json.load(f))
+    f.close()
+    db = structureDB.database.read_structure_database(parameters.db_name)
     for st in db:
         i = 0
         at_list = []
