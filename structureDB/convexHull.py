@@ -28,4 +28,8 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
                 print("this should not have happened.")
                 quit()
     
-    
+    for stoichio in db:
+        elem_symbs = db[stoichio][0].get_chemical_symbols()
+        n1 = elem_symbs.count(e1)
+        n2 = elem_symbs.count(e2)
+        n3 = elem_symbs.count(e3)
