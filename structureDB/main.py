@@ -31,7 +31,7 @@ def main():
         help='Chemical symbol of first element', required= True)
     conv_parser.add_argument('-e2', dest='e2', action='store', type=str,
         help='Chemical symbol of 2nd element', required= True)
-    conv_parser.add_argument('-e3', dest='e2', action='store', type=str,
+    conv_parser.add_argument('-e3', dest='e3', action='store', type=str,
         help='Chemical symbol of 3rd element', required= True)
 
     init_parser.add_argument('--name', dest='name', action='store', type=str,
