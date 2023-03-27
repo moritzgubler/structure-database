@@ -3,6 +3,7 @@ import structureDB.parameters
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.spatial import ConvexHull
 
 
 def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
@@ -23,10 +24,13 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
         if len(elem_symbs) == 1: # single component system found
             if e1 in elem_symbs:
                 st1 = stoichio
+                energy1 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
             elif e2 in elem_symbs:
                 st2 = stoichio
+                energy2 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
             elif e3 in elem_symbs:
                 st3 = stoichio
+                energy3 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
             else:
                 print("this should not have happened.")
                 quit()
@@ -37,6 +41,7 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
     if st3 == None:
         print("Single component %s not found!"%e3)
     pos = np.zeros((len(db), 2))
+    c = np.zeros(len(db))
     for i, stoichio in enumerate(db):
         elem_symbs = db[stoichio][0].get_chemical_symbols()
         n1 = elem_symbs.count(e1)
@@ -48,11 +53,22 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
         conc_3 = n3 / n
         pos[i, 0] = (conc_3 + 2 * conc_2) / 2
         pos[i, 1] = np.sqrt(3) * conc_3 / 2
+        etot = db[stoichio][0].info['energy']
+        etot = etot - n1 * energy1 - n2 * energy2 - n3 * energy3
+        etot /= len(db[stoichio][0])
+        c[i] = etot
+        if c[i] > 0:
+            print('houston we have a problem')
+        print(stoichio, etot)
     
+    point = np.concatenate((pos, c[:, np.newaxis]), axis=1)
+    hull = ConvexHull(point)
+    print(pos[hull.vertices,:])
     
-    fig, ax = plt.subplots()
-    ax.scatter(pos[:, 0], pos[:, 1], alpha=0.5)
-
+    # fig, ax = plt.subplots()
+    plt.scatter(pos[:, 0], pos[:, 1], c=c, alpha=0.8)
+    plt.scatter(pos[hull.vertices, 0], pos[hull.vertices, 1], marker='x', c='red')
+    plt.colorbar()
     plt.plot([0, 1], [0, 0], color = 'black')
     plt.plot([0, 0.5], [0, np.sqrt(3) / 2], color = 'black')
     plt.plot([0.5, 1], [np.sqrt(3) / 2, 0], color = 'black')
@@ -62,13 +78,13 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
     # ax.set_title('Volume and percent change')
 
     # ax.grid(True)
-    fig.tight_layout()
+    plt.tight_layout()
 
-    ax.annotate(e1, xy=(0, 0), xytext=(0, -10), textcoords='offset points',
-                color='black', ha='center', va='center')
-    ax.annotate(e2, xy=(1,0), xytext=(0, -10), textcoords='offset points',
-                color='black', ha='center', va='center')
-    ax.annotate(e3, xy=(0.5, np.sqrt(3)/2), xytext=(0, 10), textcoords='offset points',
+    plt.annotate(e1, xy=(0, 0), xytext=(0, -10), textcoords='offset points',
+              color='black', ha='center', va='center')
+    plt.annotate(e2, xy=(1,0), xytext=(0, -10), textcoords='offset points',
+              color='black', ha='center', va='center')
+    plt.annotate(e3, xy=(0.5, np.sqrt(3)/2), xytext=(0, 10), textcoords='offset points',
                 color='black', ha='center', va='center')
 
     plt.show()
