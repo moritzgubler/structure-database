@@ -8,6 +8,7 @@ from scipy.spatial import ConvexHull
 
 def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
     print('Calculating convex hull in conv hull')
+    use_energies = True
     f = open(structureDB.parameters.dbname)
     parameters = structureDB.parameters.structureDBParameters(**json.load(f))
     f.close()
@@ -24,13 +25,16 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
         if len(elem_symbs) == 1: # single component system found
             if e1 in elem_symbs:
                 st1 = stoichio
-                energy1 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
+                if use_energies:
+                    energy1 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
             elif e2 in elem_symbs:
                 st2 = stoichio
-                energy2 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
+                if use_energies:
+                    energy2 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
             elif e3 in elem_symbs:
                 st3 = stoichio
-                energy3 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
+                if use_energies:
+                    energy3 = db[stoichio][0].info['energy'] / len(db[stoichio][0])
             else:
                 print("this should not have happened.")
                 quit()
@@ -53,33 +57,39 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
         conc_3 = n3 / n
         pos[i, 0] = (conc_3 + 2 * conc_2) / 2
         pos[i, 1] = np.sqrt(3) * conc_3 / 2
-        etot = db[stoichio][0].info['energy']
-        etot = etot - n1 * energy1 - n2 * energy2 - n3 * energy3
-        etot /= len(db[stoichio][0])
-        c[i] = etot
-        if c[i] > 0:
-            print('houston we have a problem')
-        print(stoichio, etot)
+
+        num_elems = len(set(elem_symbs))
+        if num_elems == 2:
+            f = db[stoichio][0].get_chemical_formula('hill', empirical = True)
+            plt.annotate(f, pos[i, :], xytext=(15, 10), textcoords='offset points',
+                color='black', ha='center', va='center')
+
+        if use_energies:
+            etot = db[stoichio][0].info['energy']
+            etot = etot - n1 * energy1 - n2 * energy2 - n3 * energy3
+            etot /= len(db[stoichio][0])
+            c[i] = etot
+            if c[i] > 0:
+                print('houston we have a problem')
+            print(stoichio, etot)
     
-    point = np.concatenate((pos, c[:, np.newaxis]), axis=1)
-    hull = ConvexHull(point)
-    print(pos[hull.vertices,:])
+    if use_energies:
+        point = np.concatenate((pos, c[:, np.newaxis]), axis=1)
+        hull = ConvexHull(point)
+        print(pos[hull.vertices,:])
     
-    # fig, ax = plt.subplots()
-    plt.scatter(pos[:, 0], pos[:, 1], c=c, alpha=0.8)
-    plt.scatter(pos[hull.vertices, 0], pos[hull.vertices, 1], marker='x', c='red')
-    plt.colorbar()
+        sc = plt.scatter(pos[:, 0], pos[:, 1], c=c, alpha=0.8)
+        plt.scatter(pos[hull.vertices, 0], pos[hull.vertices, 1], marker='x', c='red')
+        cbar = plt.colorbar(sc)
+        cbar.ax.set_ylabel('eV per atom')
+    else:
+        plt.scatter(pos[:, 0], pos[:, 1], alpha=0.8)
+
     plt.plot([0, 1], [0, 0], color = 'black')
     plt.plot([0, 0.5], [0, np.sqrt(3) / 2], color = 'black')
     plt.plot([0.5, 1], [np.sqrt(3) / 2, 0], color = 'black')
-
-    # ax.set_xlabel(r'$\Delta_i$', fontsize=15)
-    # ax.set_ylabel(r'$\Delta_{i+1}$', fontsize=15)
-    # ax.set_title('Volume and percent change')
-
-    # ax.grid(True)
     plt.tight_layout()
-
+    
     plt.annotate(e1, xy=(0, 0), xytext=(0, -10), textcoords='offset points',
               color='black', ha='center', va='center')
     plt.annotate(e2, xy=(1,0), xytext=(0, -10), textcoords='offset points',
