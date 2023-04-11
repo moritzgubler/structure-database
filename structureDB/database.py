@@ -39,6 +39,9 @@ def getStoichiometry(struct: Atoms):
 def addAtoms(db: dict, atomList: list, parameters: structureDB.parameters.structureDBParameters):
     for struct in atomList:
         st = getStoichiometry(struct)
+        if 'energy' not in struct.info:
+            print("Energy missing: ", st)
+            struct.info["energy"] = 0.0
         if st not in db:
             db[st] = [struct]
             continue
