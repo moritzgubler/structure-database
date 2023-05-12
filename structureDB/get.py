@@ -34,7 +34,7 @@ def get(emax, nmax, outdir, extension):
             at_list.append(db[st][i])
             i+=1
         if concatanable[extension]:
-            write(outdir + '/' + db[s][0].get_chemical_formula('hill', empirical = True) + '.' + extension, at_list)
+            write(outdir + '/' + db[st][0].get_chemical_formula('hill', empirical = True) + '.' + extension, at_list)
         else:
             for i, struct in enumerate(at_list):
                 write("%s/%s_%s.%s"%(outdir, db[st][0].get_chemical_formula('hill', empirical = True), format(i, '05'), extension), struct)
