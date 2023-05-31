@@ -4,6 +4,7 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial import ConvexHull
+from math import gcd
 
 
 def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
@@ -46,11 +47,16 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
         print("Single component %s not found!"%e3)
     pos = np.zeros((len(db), 2))
     c = np.zeros(len(db))
+    dbf = open('ternary.dat', 'w')
     for i, stoichio in enumerate(db):
         elem_symbs = db[stoichio][0].get_chemical_symbols()
         n1 = elem_symbs.count(e1)
         n2 = elem_symbs.count(e2)
         n3 = elem_symbs.count(e3)
+        g_div = gcd(n1, n2, n3)
+        nr1 = n1 / g_div
+        nr2 = n2 / g_div
+        nr3 = n3 / g_div
         n = n1 + n2 + n3
         conc_1 = n1 / n
         conc_2 = n2 / n
@@ -68,10 +74,13 @@ def calcConvexHull(outfile: str, plotOnly: bool, e1: str, e2: str, e3: str):
             etot = db[stoichio][0].info['energy']
             etot = etot - n1 * energy1 - n2 * energy2 - n3 * energy3
             etot /= len(db[stoichio][0])
+            etot = etot * 1000
             c[i] = etot
             if c[i] > 0:
                 print('houston we have a problem')
             print(stoichio, etot)
+            dbf.write("%s_{%d}%s_{%d}%s_{%d}  %f  %d %d %d\n"% (e1, nr1, e2, nr2, e3, nr3, etot, nr1, nr2, nr3) )
+    dbf.close()
     
     if use_energies:
         point = np.concatenate((pos, c[:, np.newaxis]), axis=1)
